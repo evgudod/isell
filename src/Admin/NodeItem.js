@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 export default class NodeItem extends Component {
     render() {
         const divStyle = {
-           marginLeft: this.props.level*20 + 'px',
+           marginLeft: this.props.lvl*20 + 'px',
         };
 
         const dragStartHandler = (e) => e.dataTransfer.setData("text/plain", e.target.id);

@@ -10,7 +10,7 @@ class RubricatorBuilder extends Component {
            super(props);
            this.state = {
            content: [ // from DB
-                     {id:-1, level: 0, clazz:"show", parentid: null, name: "Animals"},
+                    /* {id:-1, level: 0, clazz:"show", parentid: null, name: "Animals"},
                      {id:1, level: 1, clazz:"show", parentid: -1, name: "Cats"},
                      {id:6, level: 2, clazz:"show", parentid:1, name: "Kittens"},
                      {id: 8, level: 3, clazz:"show", parentid:6, name:"breed #1"},
@@ -20,7 +20,7 @@ class RubricatorBuilder extends Component {
                      {id:3, level: 1, clazz:"show", parentid: -2, name: "Cars"},
                      {id: 4, level: 1, clazz:"show", parentid: -2, name: "Moto"},
                      {id: 9, level: 1, clazz:"show", parentid: -2, name: "Bicycles"},
-                     {id: 5, level: 0, clazz:"show", parentid: null, name: "Real estate"}
+                     {id: 5, level: 0, clazz:"show", parentid: null, name: "Real estate"}*/
                    ]
                 }
 
@@ -40,9 +40,9 @@ class RubricatorBuilder extends Component {
         this.recalcChildrenLevels = (id, newLevel, newState) => {
             let children  = newState.filter(e => e.parentid === id);
             children.forEach(e => {
-                let level = newLevel + 1;
-                newState[this.getIndexById(e.id)].level = level;
-                this.recalcChildrenLevels(e.id, level, newState);
+                let lvl = newLevel + 1;
+                newState[this.getIndexById(e.id)].lvl = lvl;
+                this.recalcChildrenLevels(e.id, lvl, newState);
             });
         }
 
@@ -69,8 +69,8 @@ class RubricatorBuilder extends Component {
                    index = this.getIndexById(draggedElem);
                    newPosIndex = this.getIndexById(newPosition);
                    newState[index].parentid = newState[newPosIndex].id;
-                   newState[index].level = newState[newPosIndex].level + 1 ;
-                   this.recalcChildrenLevels (draggedElem, newState[index].level, newState);
+                   newState[index].lvl = newState[newPosIndex].lvl + 1 ;
+                   this.recalcChildrenLevels (draggedElem, newState[index].lvl, newState);
                    return {content: newState}
                })
            }
@@ -80,10 +80,10 @@ class RubricatorBuilder extends Component {
                 const newState = prevState.content;
                 if (this.mode === "Add") {
                     let selectedItemId = this.getIndexById(selectedItem);
-                    let selectedItemLevel = newState[selectedItemId].level;
+                    let selectedItemLevel = newState[selectedItemId].lvl;
                     newState.splice(this.getIndexById(selectedItem) + 1, 1,
                                    {id: ++this.sequence,
-                                    level: selectedItemLevel + 1,
+                                    lvl: selectedItemLevel + 1,
                                     clazz: "show",
                                     parentid: selectedItem,
                                     name: value
@@ -93,7 +93,7 @@ class RubricatorBuilder extends Component {
                     let currentItem = newState.find((obj) => obj.clazz === null);
                     newState.splice(this.getIndexById(selectedItem), 1,
                         {id: selectedItem,
-                         level: currentItem.level,
+                         lvl: currentItem.lvl,
                          clazz: "show",
                          parentid: currentItem.parentid,
                          name: value
@@ -111,7 +111,7 @@ class RubricatorBuilder extends Component {
                        let currentItem = newState.find((obj) => obj.clazz === null);
                        newState.splice(this.getIndexById(selectedItem), 1,
                            {id: selectedItem,
-                            level: currentItem.level,
+                            lvl: currentItem.lvl,
                             clazz: "show",
                             parentid: currentItem.parentid,
                             name: value})
@@ -126,7 +126,7 @@ class RubricatorBuilder extends Component {
                 this.setState((prevState) => {
                     const newState = prevState.content;
                     newState.splice(this.getIndexById(selectedItem) + 1, 0,
-                        {id: null, level: 0, clazz: null, parentid: null, name: null});
+                        {id: null, lvl: 0, clazz: null, parentid: null, name: null});
                     return {content: newState}
                 });
                 ContextMenu.setVisibility(false);
@@ -151,7 +151,7 @@ class RubricatorBuilder extends Component {
                 const newState = prevState.content;
                 newState.splice(index, 1,
                     {id: selectedItem,
-                     level: selectedItems.level,
+                     lvl: selectedItems.lvl,
                      clazz: null,
                      parentid: selectedItems.parentid,
                      name: selectedItems.name
@@ -165,6 +165,23 @@ class RubricatorBuilder extends Component {
     ];
 
     componentDidMount() {
+
+
+        fetch("http://localhost:8080/tradeitems/all/1").then(function(response) {
+            var contentType = response.headers.get("content-type");
+            if(contentType && contentType.includes("application/json")) {
+                return response.json();
+            }
+            throw new TypeError("Oops, we haven't got JSON!");
+        })
+            .then((json) => {
+
+                this.setState({content:json});
+
+
+            })
+            .catch(function(error) { console.log(error); });
+
 
     }
 
@@ -194,7 +211,7 @@ class RubricatorBuilder extends Component {
             <div className="App-top" onClick={this.handleClick.bind(this)}>
                 {this.state.content.map ((item,key)  =>
                     item.clazz === null ?  <DialogItem value={item.name} postCancelAction={this.cancelItem} postAddAction={this.addItem}/> :
-                    <NodeItem postAction={this.dragAndDrop} dragoverAction = {this.dragover} level={item.level} key={item.id} id={item.id} clazz={item.clazz}
+                    <NodeItem postAction={this.dragAndDrop} dragoverAction = {this.dragover} lvl={item.lvl} key={item.id} id={item.id} clazz={item.clazz}
                                                             parentid={item.parentid} name={item.name}/>)
                 }
                 <ContextMenu data={this.menuItems} rootName="App-top"/>
