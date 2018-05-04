@@ -13,6 +13,7 @@ public class TradeItem {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+    private int gid;
     private int id;
     private int lvl;
     private String clazz;

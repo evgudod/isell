@@ -161,7 +161,37 @@ class RubricatorBuilder extends Component {
             this.mode = "Rename";
         }},
 
-       {name:"Save", action: (event) => {}}
+       {name:"Save", action: (event) => {
+           console.log(JSON.stringify(this.state.content));
+
+           fetch("http://localhost:8080/tradeitems/save",
+
+               { method: "POST",
+                   headers: {
+                       'Accept': 'application/json',
+                       'Content-Type': 'application/json'
+                   },
+
+                   body: JSON.stringify(this.state.content)
+               }).then(function(response) {
+               var contentType = response.headers.get("content-type");
+               if(contentType && contentType.includes("application/json")) {
+                   return response.json();
+               }
+               throw new TypeError("Oops, we haven't got JSON!");
+           })
+               .then((json) => {
+
+                   //this.setState({content:json});
+
+
+               })
+               .catch(function(error) { console.log(error); });
+
+
+
+
+       }}
     ];
 
     componentDidMount() {
@@ -175,6 +205,8 @@ class RubricatorBuilder extends Component {
             throw new TypeError("Oops, we haven't got JSON!");
         })
             .then((json) => {
+
+                console.log(json);
 
                 this.setState({content:json});
 

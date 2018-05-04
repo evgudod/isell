@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,6 +27,18 @@ public class TradeItemController {
     public @ResponseBody String delete(@PathVariable String id){
         List<TradeItem> tradeItems = new ArrayList<>();
         tradeItemRepo.findAll().forEach(tradeItems::add);
+        //tradeItemRepo.getALlData().forEach(tradeItems::add);
         return new Gson().toJson(tradeItems);
     }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value = "/tradeitems/save", consumes="application/json",method=RequestMethod.POST)
+    public void save(@RequestBody TradeItem[] tradeItem){
+        List<TradeItem> tradeItems = Arrays.asList(tradeItem);
+        tradeItemRepo.save(tradeItems);
+        //tradeItemRepo.findAll().forEach(tradeItems::add);
+        //tradeItemRepo.getALlData().forEach(tradeItems::add);
+    }
+
+
 }
